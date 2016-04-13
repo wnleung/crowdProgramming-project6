@@ -1,0 +1,26 @@
+#gameboard {
+  background-color: gray;
+  width: 300px;
+  height: 300px;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  z-index: -50;
+}
+
+.ship {
+  background-color: red;
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  left: 150px;
+  top: 250px;
+  z-index: 100;
+}
+
+.gridcell {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  z-index: 50;
+}
