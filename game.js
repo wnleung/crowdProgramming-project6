@@ -124,12 +124,12 @@ $(document).ready(function() {
     			}
     		}
     		// average mediator
-    		if (mediator == 'average') {
+    		if (json.results['mediator'] == 'average') {
     			collective_location = Math.floor(sumPos/count);
     			cShip.css("left", collective_location + "px");  
     		}
     		// better mediator takes mode of all positions
-    		else if (mediator == 'better') {
+    		else if (json.results['mediator'] == 'better') {
     			collective_location = Math.mode(posArray);
     		}
     	},
