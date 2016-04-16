@@ -1,17 +1,22 @@
-// constants
+// constants - can change any of these
 var gameboardWidth = 300;
 var gameboardHeight = 300;
 
-var gridcellWidth = 50;
-var gridcellHeight = 50;
+var cellW = 50;
+var cellH = 50;
 
-var shipWidth = 50;
-var shipHeight = 50;
+var shipW = 50;
+var shipH = 50;
 
-var shipX = Math.round(gameboardWidth/gridcellWidth/2)*gridcellWidth;
-var shipY = gameboardHeight - shipWidth/2;
-var ship_location = shipX/gridcellWidth;
-var ship_total = gameboardWidth/shipWidth;
+// the following change based on the variables above. 
+var shipX = Math.round(gameboardWidth/cellW/2)*cellW;
+var shipY = gameboardHeight - shipW/2;
+var ship_location = shipX/cellW;
+var ship_total = gameboardWidth/shipW;
+
+//collective ship
+var collective_location = ship_location;
+
 
 var board_color = "gray";
 var board =
@@ -34,104 +39,114 @@ var amount_earned = 0.000;
 var time_elapsed = 0;
 
 var gameover = false;
+var collectiveGameover=false;
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 $(document).ready(function() {
+
+// all the initialization code ------------------------------------------------
   // initializes the gameboard
   var gameboard = $("<div id='gameboard'></div>");
   $(document.body).append(gameboard);
 
-  var scoreboard = $("<div id='scoreboard'></div>");
-  scoreboard.text = amount_earned;
-  $(document.body).append(scoreboard);
-
-  //initialize gridcells
-  for (var row=0; row < gameboardHeight/gridcellHeight; row++){
-    for (var col=0; col < gameboardWidth/gridcellWidth; col++){
-      var tempPiece = $("<div class='gridcell' id='gridcell_" + col + "_" + row + "'></div>");
+  //initialize gridcells in gameboard and colors them
+  for (var row=0; row < gameboardHeight/cellH; row++){
+    for (var col=0; col < gameboardWidth/cellW; col++){
+      var tempPiece = $("<div class='gridcell' id='cell_" + col + "_" + row + "'></div>");
       $(gameboard).append(tempPiece);
-      $("#gridcell_" + col + "_" + row).css("left", (col*gridcellWidth) + "px");
-      $("#gridcell_" + col + "_" + row).css("top", (row*gridcellHeight) + "px");
-      $("#gridcell_" + col + "_" + row).css("background-color", board_color);
-
+      $("#cell_" + col + "_" + row).css("left", (col*cellW) + "px");
+      $("#cell_" + col + "_" + row).css("top", (row*cellH) + "px");
+      $("#cell_" + col + "_" + row).css("background-color", board_color);
     }
   }
-
 
   // initializes the ship
   var ship = $("<div class='ship'></div>");
   $(gameboard).append(ship);
 
-  //initialize a falling piece
-  var piece = $("<div class='piece'></div>");
-  $(gameboard).append(piece);
+  // initializes the collective ship
+  var cShip = $("<div class='collective-ship'></div>");
+  $(gameboard).append(cShip);
 
+  //initialize a falling piece (WORK IN PROGRESS)
+  // var piece = $("<div class='piece'></div>");
+  // $(gameboard).append(piece);
 
+   // initializes div for scoreboard
+  var scoreboard = $("<div id='scoreboard'></div>");
+  scoreboard.text = amount_earned;
+  $(document.body).append(scoreboard);
+
+// ----------------------------------------------------------------------------
+
+// this follows the local ship
   // event listener
   $(document).keydown(function(e) {
     if(e.keyCode==37) {
       // left arrow clicked
+   		//normal case
       if (ship_location > 0 && ship_location <=5){
         shipX -= 50;
       }
       else if(ship_location == 0) {
         shipX = 250;
       }
+      	// edge (ha!) case
     } else if(e.keyCode == 39) {
       // right arrow clicked
-      if (ship_location >= 0 && ship_location < 5){
-        shipX += 50;
-        
-      }
-      else if(ship_location = 5) {
-        shipX = 0;
-      }
+      	// normal case
+      if (ship_location >= 0 && ship_location < 5){shipX += 50;}
+      	// edge case
+      else if(ship_location = 5) {shipX = 0;}
     }
-    ship_location = shipX/gridcellWidth;
+    ship_location = shipX/cellW;
     console.log(ship_location);
-    console.log(($("#gridcell_" + ship_location + "_" + (gameboardHeight/gridcellHeight - 1)).css("background-color") == "blue"));
-    if ($("#gridcell_" + ship_location + "_" + (gameboardHeight/gridcellHeight - 1)).css("background-color") == "blue") {
+    console.log(($("#cell_" + ship_location + "_" + (gameboardHeight/cellH - 1)).css("background-color") == "blue"));
+    // if the ship's next move will run into a piece.
+    if ($("#cell_" + ship_location + "_" + (gameboardHeight/cellH - 1)).css("background-color") == "blue") {
       console.log("collision");
     }
     $(".ship").css("left", shipX + "px");
   });
 
-
+// this doesn't change
   // timer for falling piece
-
-  setInterval(function() {
+  var timer = setInterval(function() {
     //color in divs
         // shift all colors down
-    $("#scoreboard").text("$ " + amount_earned.toFixed(3))
-    for (var row = gameboardHeight/gridcellHeight-1; row>0; row--){
-      for (var col=0; col <gameboardWidth/gridcellWidth; col++){
-        var colorAbove = $("#gridcell_" + col + "_" + (row - 1)).css("background-color");
+    $("#scoreboard").text("$ " +amount_earned.toFixed(3));
+    for (var row = gameboardHeight/cellH-1; row>0; row--){
+      for (var col=0; col <gameboardWidth/cellW; col++){
+        var colorAbove = $("#cell_" + col + "_" + (row - 1)).css("background-color");
         //console.log(colorAbove);
-        $("#gridcell_" + col + "_" + row).css("background-color", colorAbove);
-        //console.log("#gridcell_" + ship_location + "_" + row);
-        console.log($("#gridcell_" + ship_location + "_" + (gameboardHeight/gridcellHeight-1)).css("background-color"));
-        if ($("#gridcell_" + ship_location + "_" + (gameboardHeight/gridcellHeight-1)).css("background-color") == "rgb(0,0,255)") {
+        $("#cell_" + col + "_" + row).css("background-color", colorAbove);
+        //console.log("#cell_" + ship_location + "_" + row);
+        console.log($("#cell_" + ship_location + "_" + (gameboardHeight/cellH-1)).css("background-color"));
+        // gamemboardHeight/cellH is 5, -1 to get the index of the bottom row, -1 again to get the row above that
+        if ($("#cell_" + ship_location + "_" + (gameboardHeight/cellH-2)).css("background-color") == "rgb(0,0,255)") {
           console.log("collision"); // don't know why but it isn't detecting collision. 
         }
       }
     }
-    //color in first row
-    for (var frcol=0; frcol <gameboardWidth/gridcellWidth; frcol++){
-      //console.log("gridcell_" + frcol + "_0");
+    // color in first row
+    for (var frcol=0; frcol <gameboardWidth/cellW; frcol++){
+      //console.log("cell_" + frcol + "_0");
       if (board[offset][frcol] == "1"){
-        $("#gridcell_" + frcol + "_0").css("background-color", "blue");
+        $("#cell_" + frcol + "_0").css("background-color", "blue");
       }
       else if (board[offset][frcol] == "0"){
-        $("#gridcell_" + frcol + "_0").css("background-color", board_color);
+        $("#cell_" + frcol + "_0").css("background-color", board_color);
       }
     }
-    // collision detection
+    // collision detection // this follows the collective ship
     var check_bottom_row = 0;
-    if (offset + gameboardHeight/gridcellHeight > board.length) {
-      check_bottom_row = (offset + gameboardHeight/gridcellHeight)%board.length;
+    if (offset + gameboardHeight/cellH > board.length) {
+      check_bottom_row = (offset + gameboardHeight/cellH)%board.length;
       //console.log("too much");
     }
-    else if (offset + gameboardHeight/gridcellHeight < board.length) {
-      check_bottom_row = offset + gameboardHeight/gridcellHeight;
+    else if (offset + gameboardHeight/cellH < board.length) {
+      check_bottom_row = offset + gameboardHeight/cellH;
     }
     if ((board[check_bottom_row])[ship_location] == 1) {
       alert("Game Over.");
@@ -141,7 +156,7 @@ $(document).ready(function() {
     }
 
 
-    // change offset to shirt board down
+    // change offset to shift board down
     if (offset == 0) {
       offset = board.length-1;
     }
@@ -150,39 +165,44 @@ $(document).ready(function() {
     }
 
     // increment time and money
-    if(gameover == false && time_elapsed != 0 && (amount_earned%2 == 0)){
+    time_elapsed++;
+    if(gameover == false && time_elapsed != 0 && (amount_earned < 2)){
       amount_earned += 0.001;
-      time_elapsed = count++;
+      console.log(amount_earned);
+      $("#scoreboard").text("$ " +amount_earned.toFixed(3));
     }
 
     if (amount_earned==2) {
-      alert("Congratulations. You have beat the game.");
-      document.getElementById("amount_earned").value = amount_earned;
-      document.getElementById("time_elapsed").value = time_elapsed;
-      document.forms["mturk_form"].submit();
+      	alert("Congratulations. You have beat the game.");
+      	document.getElementById("amount_earned").value = amount_earned;
+      	document.getElementById("time_elapsed").value = time_elapsed;
+      	document.forms["mturk_form"].submit();
     }
 
     if (gameover) {
-      alert("Game Over.")
-      document.getElementById("amount_earned").value = amount_earned;
-      document.getElementById("time_elapsed").value = time_elapsed;
-      document.forms["mturk_form"].submit();
-      clearInterval();
+   		clearInterval(timer);
+      	alert("Game Over.")
+      	document.getElementById("amount_earned").value = amount_earned;
+      	document.getElementById("time_elapsed").value = time_elapsed;
+      	document.forms["mturk_form"].submit();
+      	clearInterval(timer);
+      	//gameover = false;
     }
 
     // if collision then alert and submit
   }, 500);
 
-})
+});
 
 
 // query the current location of the ship.
-var local_ship_position = 5;
+var local_ship_position = ship_location;
 var is_active = true;
 function updateBoard() {
-  $.getJSON("//www.codingthecrowd.com/counter.php", {key: “mykey”, data: {localship: local_ship_position, active: is_active}})
+ 	$.getJSON("//www.codingthecrowd.com/counter.php", {key: “winniel”, data: {localship: local_ship_position, active: is_active}})
       .done(function(json) {
           // do something with the response
+          json.
        })      
       .fail(function(jqxhr, textStatus, error) {
           var err = textStatus + ", " + error;
