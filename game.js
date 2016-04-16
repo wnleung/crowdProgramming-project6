@@ -109,8 +109,8 @@ $(document).ready(function() {
     		key: 'winniel',
     		data: {'local_ship':ship_location, 'is_active': true, 'mediator':'average'},
     		
-    	};
-    	datatype: 'jsonp';
+    	},
+    	datatype: 'jsonp',
     	success: function(json){
     		var count = json.count;
     		var sumPos = 0;
@@ -157,8 +157,8 @@ $(document).ready(function() {
 var local_ship_position = ship_location;
 var is_active = true;
 function updateBoard() {
- 	$.getJSON("//www.codingthecrowd.com/counter.php", {key: “winniel”, data: {localship: local_ship_position, active: is_active}})
-      .done(function(json) {
+ 	$.getJSON('http://www.codingthecrowd.com/counter.php', {key: 'winniel', data: {localship: local_ship_position, active: is_active}})
+      	.done(function(json) {
           // do something with the response
             var count = json.count;
     		var sumPos = 0;
@@ -179,7 +179,7 @@ function updateBoard() {
     		// better mediator takes mode of all positions
     		else if (mediator == 'better') {
     			collective_location = Math.mode(posArray);
-
+    		}
     		// ============== Move board functions ============================
     		// shift all colors down
 		    $("#scoreboard").text("$ " +amount_earned.toFixed(3));
@@ -257,11 +257,12 @@ function updateBoard() {
 		      	clearTimeout(timer);
 		      	//gameover = false;
 		    }
-       })      
-      .fail(function(jqxhr, textStatus, error) {
-          var err = textStatus + ", " + error;
-          console.log( "Request Failed: " + err );
-  	});
-}
+       	})//,      
+      	//.fail(function(jqxhr, textStatus, error) {
+        //  var err = textStatus + ", " + error;
+        //  console.log( "Request Failed: " + err );
+        //})
+  	};
+});
 // updateBoard(); // commenented out because what if you get gameover in the first round
 var timer = setTimeout(updateBoard, 1000);
