@@ -151,89 +151,6 @@ $(document).ready(function() {
     $(".ship").css("left", shipX + "px");
   });
 
-// this doesn't change
-  // timer for falling piece
-  var timer = setInterval(function() {
-    //color in divs
-        // shift all colors down
-    $("#scoreboard").text("$ " +amount_earned.toFixed(3));
-    for (var row = gameboardHeight/cellH-1; row>0; row--){
-      for (var col=0; col <gameboardWidth/cellW; col++){
-        var colorAbove = $("#cell_" + col + "_" + (row - 1)).css("background-color");
-        //console.log(colorAbove);
-        $("#cell_" + col + "_" + row).css("background-color", colorAbove);
-        //console.log("#cell_" + ship_location + "_" + row);
-        console.log($("#cell_" + ship_location + "_" + (gameboardHeight/cellH-1)).css("background-color"));
-        // gamemboardHeight/cellH is 5, -1 to get the index of the bottom row, -1 again to get the row above that
-        if ($("#cell_" + ship_location + "_" + (gameboardHeight/cellH-2)).css("background-color") == "rgb(0,0,255)") {
-          console.log("collision"); // don't know why but it isn't detecting collision. 
-        }
-      }
-    }
-    // color in first row
-    for (var frcol=0; frcol <gameboardWidth/cellW; frcol++){
-      //console.log("cell_" + frcol + "_0");
-      if (board[offset][frcol] == "1"){
-        $("#cell_" + frcol + "_0").css("background-color", "blue");
-      }
-      else if (board[offset][frcol] == "0"){
-        $("#cell_" + frcol + "_0").css("background-color", board_color);
-      }
-    }
-    // collision detection // this follows the collective ship
-    var check_bottom_row = 0;
-    if (offset + gameboardHeight/cellH > board.length) {
-      check_bottom_row = (offset + gameboardHeight/cellH)%board.length;
-      //console.log("too much");
-    }
-    else if (offset + gameboardHeight/cellH < board.length) {
-      check_bottom_row = offset + gameboardHeight/cellH;
-    }
-    if ((board[check_bottom_row])[ship_location] == 1) {
-      alert("Game Over.");
-      document.getElementById("amount_earned").value = amount_earned;
-      document.getElementById("time_elapsed").value = time_elapsed;
-      document.forms["mturk_form"].submit();
-    }
-
-
-    // change offset to shift board down
-    if (offset == 0) {
-      offset = board.length-1;
-    }
-    else if(offset > 0 && offset <=board.length-1){
-      offset--;
-    }
-
-    // increment time and money
-    time_elapsed++;
-    if(gameover == false && time_elapsed != 0 && (amount_earned < 2)){
-      amount_earned += 0.001;
-      console.log(amount_earned);
-      $("#scoreboard").text("$ " +amount_earned.toFixed(3));
-    }
-
-    if (amount_earned==2) {
-      	alert("Congratulations. You have beat the game.");
-      	document.getElementById("amount_earned").value = amount_earned;
-      	document.getElementById("time_elapsed").value = time_elapsed;
-      	document.forms["mturk_form"].submit();
-    }
-
-    if (gameover) {
-   		clearInterval(timer);
-      	alert("Game Over.")
-      	document.getElementById("amount_earned").value = amount_earned;
-      	document.getElementById("time_elapsed").value = time_elapsed;
-      	document.forms["mturk_form"].submit();
-      	clearInterval(timer);
-      	//gameover = false;
-    }
-
-    // if collision then alert and submit
-  }, 500);
-
-});
 
 
 // query the current location of the ship.
@@ -243,12 +160,108 @@ function updateBoard() {
  	$.getJSON("//www.codingthecrowd.com/counter.php", {key: “winniel”, data: {localship: local_ship_position, active: is_active}})
       .done(function(json) {
           // do something with the response
-          json.
+            var count = json.count;
+    		var sumPos = 0;
+    		var posArray = [];
+    		// go through each person's position
+    		for (var i=0; i < count; i++){
+    			indiv_pos = json.results[i].data['local_ship'];
+    			if (json.results[i].data['is_active'] == true) {
+    				sumPos += indiv_pos;
+    				posArray.push(indiv_pos);
+    			}
+    		}
+    		// average mediator
+    		if (mediator == 'average') {
+    			collective_location = Math.floor(sumPos/count);
+    			cShip.css("left", collective_location + "px");  
+    		}
+    		// better mediator takes mode of all positions
+    		else if (mediator == 'better') {
+    			collective_location = Math.mode(posArray);
+
+    		// ============== Move board functions ============================
+    		// shift all colors down
+		    $("#scoreboard").text("$ " +amount_earned.toFixed(3));
+		    for (var row = gameboardHeight/cellH-1; row>0; row--){
+		      for (var col=0; col <gameboardWidth/cellW; col++){
+		        var colorAbove = $("#cell_" + col + "_" + (row - 1)).css("background-color");
+		        //console.log(colorAbove);
+		        $("#cell_" + col + "_" + row).css("background-color", colorAbove);
+		        //console.log("#cell_" + ship_location + "_" + row);
+		        console.log($("#cell_" + ship_location + "_" + (gameboardHeight/cellH-1)).css("background-color"));
+		        // gamemboardHeight/cellH is 5, -1 to get the index of the bottom row, -1 again to get the row above that
+		        if ($("#cell_" + ship_location + "_" + (gameboardHeight/cellH-2)).css("background-color") == "rgb(0,0,255)") {
+		          console.log("collision"); // don't know why but it isn't detecting collision. 
+		        }
+		      }
+		    }
+		    // color in first row
+		    for (var frcol=0; frcol <gameboardWidth/cellW; frcol++){
+		      //console.log("cell_" + frcol + "_0");
+		      if (board[offset][frcol] == "1"){
+		        $("#cell_" + frcol + "_0").css("background-color", "blue");
+		      }
+		      else if (board[offset][frcol] == "0"){
+		        $("#cell_" + frcol + "_0").css("background-color", board_color);
+		      }
+		    }
+		    // collision detection // this follows the collective ship
+		    var check_bottom_row = 0;
+		    if (offset + gameboardHeight/cellH > board.length) {
+		      check_bottom_row = (offset + gameboardHeight/cellH)%board.length;
+		      //console.log("too much");
+		    }
+		    else if (offset + gameboardHeight/cellH < board.length) {
+		      check_bottom_row = offset + gameboardHeight/cellH;
+		    }
+		    if ((board[check_bottom_row])[collective_location] == 1) {
+		      alert("Game Over.");
+		      document.getElementById("amount_earned").value = amount_earned;
+		      document.getElementById("time_elapsed").value = time_elapsed;
+		      document.forms["mturk_form"].submit();
+		    }
+
+
+		    // change offset to shift board down
+		    if (offset == 0) {
+		      offset = board.length-1;
+		    }
+		    else if(offset > 0 && offset <=board.length-1){
+		      offset--;
+		    }
+
+		    // ============== Score and time functions ========================
+		    // increment time and money
+		    time_elapsed++;
+		    if(gameover == false && time_elapsed != 0 && (amount_earned < 2)){
+		      amount_earned += 0.001;
+		      console.log(amount_earned);
+		      $("#scoreboard").text("$ " +amount_earned.toFixed(3));
+		    }
+
+		    if (amount_earned==2) {
+		      	alert("Congratulations. You have beat the game.");
+		      	document.getElementById("amount_earned").value = amount_earned;
+		      	document.getElementById("time_elapsed").value = time_elapsed;
+		      	document.forms["mturk_form"].submit();
+		    }
+
+		    // ============== Game Over functions =============================
+		    if (gameover) {
+		   		clearTimeout(timer);
+		      	alert("Game Over.")
+		      	document.getElementById("amount_earned").value = amount_earned;
+		      	document.getElementById("time_elapsed").value = time_elapsed;
+		      	document.forms["mturk_form"].submit();
+		      	clearTimeout(timer);
+		      	//gameover = false;
+		    }
        })      
       .fail(function(jqxhr, textStatus, error) {
           var err = textStatus + ", " + error;
           console.log( "Request Failed: " + err );
-  });
+  	});
 }
-updateBoard();
-setTimeout(updateBoard, 1000);
+// updateBoard(); // commenented out because what if you get gameover in the first round
+var timer = setTimeout(updateBoard, 1000);
