@@ -101,6 +101,47 @@ $(document).ready(function() {
       else if(ship_location = 5) {shipX = 0;}
     }
     ship_location = shipX/cellW;
+    // send the information about the current location of the ship to the collective ship. 
+    $.ajax({
+    	url: '//www.codingthecrowd.com/counter.php';
+    	context: document.body;
+    	data: {
+    		key: 'winniel',
+    		data: {'local_ship':ship_location, 'is_active': true, 'mediator':'average'},
+    		
+    	};
+    	datatype: 'jsonp';
+    	success: function(json){
+    		var count = json.count;
+    		var sumPos = 0;
+    		var posArray = [];
+    		// go through each person's position
+    		for (var i=0; i < count; i++){
+    			indiv_pos = json.results[i].data['local_ship'];
+    			if (json.results[i].data['is_active'] == true) {
+    				sumPos += indiv_pos;
+    				posArray.push(indiv_pos);
+    			}
+    		}
+    		// average mediator
+    		if (mediator == 'average') {
+    			collective_location = Math.floor(sumPos/count);
+    			cShip.css("left", collective_location + "px");  
+    		}
+    		// better mediator takes mode of all positions
+    		else if (mediator == 'better') {
+    			collective_location = Math.mode(posArray);
+    		}
+    	}
+    	error: function(jqxhr, textStatus, error) {
+          	var err = textStatus + ", " + error;
+          	console.log( "Request Failed: " + err );
+  		};
+  		complete: function () {
+  			setTimeout(updateBoard, 500);
+  		}
+    })
+
     console.log(ship_location);
     console.log(($("#cell_" + ship_location + "_" + (gameboardHeight/cellH - 1)).css("background-color") == "blue"));
     // if the ship's next move will run into a piece.
