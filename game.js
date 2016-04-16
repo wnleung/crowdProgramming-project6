@@ -103,14 +103,16 @@ $(document).ready(function() {
     ship_location = shipX/cellW;
     // send the information about the current location of the ship to the collective ship. 
     $.ajax({
-    	url: '//www.codingthecrowd.com/counter.php',
+    	url: 'http://www.codingthecrowd.com/counter.php',
     	context: document.body,
     	data: {
     		key: 'winniel',
+    		//data: 'data01',
     		data: {'local_ship':ship_location, 'is_active': true, 'mediator':'average'},
     		
     	},
-    	datatype: 'jsonp',
+    	dataType: 'jsonp',
+    	jsonp: 'callback',
     	success: function(json){
     		var count = json.count;
     		var sumPos = 0;
@@ -137,9 +139,9 @@ $(document).ready(function() {
           	var err = textStatus + ", " + error;
           	console.log( "Request Failed: " + err );
   		},
-  		complete: function () {
-  			setTimeout(updateBoard, 500);
-  		},
+  		//complete: function () {
+  			//setTimeout(updateBoard, 500);
+  		//},
     })
 
     console.log(ship_location);
@@ -156,8 +158,9 @@ $(document).ready(function() {
 // query the current location of the ship.
 var local_ship_position = ship_location;
 var is_active = true;
-function updateBoard() {
- 	$.getJSON('http://www.codingthecrowd.com/counter.php', {key: 'winniel', data: {localship: local_ship_position, active: is_active}})
+
+var timer = setTimeout(function updateBoard() {
+ 	$.getJSON('http://www.codingthecrowd.com/counter.php', {key: 'winniel', data: {localship: local_ship_position, is_active: is_active}})
       	.done(function(json) {
           // do something with the response
             var count = json.count;
@@ -262,7 +265,8 @@ function updateBoard() {
         //  var err = textStatus + ", " + error;
         //  console.log( "Request Failed: " + err );
         //})
-  	};
-});
+ 
+	}, 1000);
 // updateBoard(); // commenented out because what if you get gameover in the first round
-var timer = setTimeout(updateBoard, 1000);
+});
+
