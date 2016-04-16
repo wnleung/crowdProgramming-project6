@@ -103,8 +103,8 @@ $(document).ready(function() {
     ship_location = shipX/cellW;
     // send the information about the current location of the ship to the collective ship. 
     $.ajax({
-    	url: '//www.codingthecrowd.com/counter.php';
-    	context: document.body;
+    	url: '//www.codingthecrowd.com/counter.php',
+    	context: document.body,
     	data: {
     		key: 'winniel',
     		data: {'local_ship':ship_location, 'is_active': true, 'mediator':'average'},
@@ -132,14 +132,14 @@ $(document).ready(function() {
     		else if (mediator == 'better') {
     			collective_location = Math.mode(posArray);
     		}
-    	}
+    	},
     	error: function(jqxhr, textStatus, error) {
           	var err = textStatus + ", " + error;
           	console.log( "Request Failed: " + err );
-  		};
+  		},
   		complete: function () {
   			setTimeout(updateBoard, 500);
-  		}
+  		},
     })
 
     console.log(ship_location);
